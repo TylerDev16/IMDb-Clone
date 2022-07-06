@@ -20,5 +20,5 @@ from watchmate_app.api.urls import urlpatterns as watchmate_app
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('movie/', include(watchmate_app)),
+    path('watch/', include(watchmate_app)),
 ]
