@@ -1,14 +1,37 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework import mixins
+from rest_framework import generics
 
-from watchmate_app.models import WatchList, StreamPlatform
-from .serializers import WatchListSerializer, StreamPlatformSerializer
+from watchmate_app.models import WatchList, StreamPlatform, Review
+from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSerializer
 
 
 # Create your views here.
+
+
+class ReviewDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, generics.GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(self, request, *args, **kwargs)
+
+
+class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    # def delete(self, request, *args, **kwargs):
+    #     return self.delete(request, *args, **kwargs)
 
 
 class StreamPlatformAV(APIView):
@@ -89,9 +112,6 @@ class WatchListDetailAV(APIView):
         movie = WatchList.objects.get(pk=pk)
         movie.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
 
 # @api_view(['GET', 'POST'])
 # def movie_list(request):
