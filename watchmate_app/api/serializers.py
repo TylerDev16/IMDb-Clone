@@ -18,7 +18,7 @@ class WatchListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class StreamPlatformSerializer(serializers.HyperlinkedModelSerializer):
+class StreamPlatformSerializer(serializers.ModelSerializer):
     watchlist = WatchListSerializer(many=True, read_only=True)
     # watchlist = serializers.StringRelatedField(many=True) # returns "__str__" rather than ID
     # watchlist = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name='watchlist_detail')
