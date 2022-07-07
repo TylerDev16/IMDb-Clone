@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework import mixins
+# from rest_framework import mixins
 from rest_framework import generics
 
 from watchmate_app.models import WatchList, StreamPlatform, Review
@@ -12,26 +12,52 @@ from .serializers import WatchListSerializer, StreamPlatformSerializer, ReviewSe
 # Create your views here.
 
 
-class ReviewDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, generics.GenericAPIView):
+class ReviewList(generics.ListCreateAPIView):
+    # queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs['pk']
+        # filter according to movie
+        return Review.objects.filter(watchlist=pk)
+
+
+class ReviewDetail(generics.RetrieveAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(self, request, *args, **kwargs)
 
-
-class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
-    queryset = Review.objects.all()
+class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    # override create method.
+    def perform_create(self, serializer):
+        pk = self.kwargs.get('pk')
+        watchlist = WatchList.objects.get(pk=pk)
 
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        serializer.save(watchlist=watchlist)
 
-    # def delete(self, request, *args, **kwargs):
-    #     return self.delete(request, *args, **kwargs)
+
+# class ReviewDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, generics.GenericAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.retrieve(self, request, *args, **kwargs)
+#
+#
+# class ReviewList(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
+#
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+#
+#     # def delete(self, request, *args, **kwargs):
+#     #     return self.delete(request, *args, **kwargs)
 
 
 class StreamPlatformAV(APIView):
